@@ -120,8 +120,8 @@ export function AppSidebar() {
             <School className="w-6 h-6 text-primary-foreground" />
           </div>
           {!collapsed && <div>
-              <h2 className="font-bold text-foreground">EduManager</h2>
-              <p className="text-xs text-muted-foreground">Gestion scolaire</p>
+              <h2 className="font-bold text-foreground">EMSI</h2>
+              <p className="text-xs text-muted-foreground">École Marocaine des Sciences de l'Ingénierie</p>
             </div>}
         </div>
       </SidebarHeader>

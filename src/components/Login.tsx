@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCap, Loader2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import emsiBackground from '@/assets/emsi-background.jpg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -29,24 +30,36 @@ export default function Login() {
   };
 
   const demoAccounts = [
-    { email: 'admin@school.com', password: 'admin123', role: 'Administrateur' },
-    { email: 'marie.dubois@school.com', password: 'teacher123', role: 'Enseignant' },
-    { email: 'jean.etudiant@school.com', password: 'student123', role: 'Étudiant' },
-    { email: 'claire.comptable@school.com', password: 'accountant123', role: 'Comptable' }
+    { email: 'admin@emsi.ma', password: 'admin123', role: 'Administrateur' },
+    { email: 'prof.benali@emsi.ma', password: 'teacher123', role: 'Enseignant' },
+    { email: 'oumaima.lemata@emsi.ma', password: 'student123', role: 'Étudiant' },
+    { email: 'comptable@emsi.ma', password: 'accountant123', role: 'Comptable' }
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url(${emsiBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background/80 to-accent/20 backdrop-blur-sm" />
+      
+      <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="bg-gradient-primary p-3 rounded-full shadow-stats">
-              <GraduationCap className="w-8 h-8 text-primary-foreground" />
+            <div className="bg-gradient-primary p-4 rounded-full shadow-stats">
+              <GraduationCap className="w-10 h-10 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">EduManager</h1>
-          <p className="text-muted-foreground">Système de gestion scolaire</p>
+          <h1 className="text-4xl font-bold text-foreground drop-shadow-lg">EMSI</h1>
+          <h2 className="text-lg font-semibold text-foreground/90">École Marocaine des Sciences de l'Ingénierie</h2>
+          <p className="text-muted-foreground bg-background/60 backdrop-blur-sm rounded-lg px-3 py-1">Système de gestion scolaire</p>
         </div>
 
         {/* Login Form */}

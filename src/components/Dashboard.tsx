@@ -9,48 +9,48 @@ import { Users, GraduationCap, BookOpen, Calendar, TrendingUp, DollarSign, Award
 const mockData = {
   admin: {
     stats: [{
-      title: 'Total Étudiants',
-      value: '1,247',
-      change: '+12%',
+      title: 'Total Étudiants EMSI',
+      value: '3,247',
+      change: '+18%',
       icon: GraduationCap,
       color: 'text-primary'
     }, {
-      title: 'Personnel',
-      value: '89',
-      change: '+3%',
+      title: 'Personnel Enseignant',
+      value: '125',
+      change: '+5%',
       icon: Users,
       color: 'text-accent'
     }, {
-      title: 'Cours Actifs',
-      value: '156',
-      change: '+8%',
+      title: 'Programmes Actifs',
+      value: '8',
+      change: '+2%',
       icon: BookOpen,
       color: 'text-success'
     }, {
-      title: 'Revenus (€)',
-      value: '284,500',
-      change: '+15%',
+      title: 'Revenus (MAD)',
+      value: '2,840,500',
+      change: '+22%',
       icon: DollarSign,
       color: 'text-warning'
     }],
     recentActivities: [{
       type: 'student',
-      message: '15 nouveaux étudiants inscrits cette semaine',
+      message: 'Oumaima Lemata et 24 autres étudiants inscrits en Génie Informatique',
       time: '2h',
       status: 'success'
     }, {
       type: 'payment',
-      message: 'Paiements en retard: 23 étudiants',
+      message: 'Frais de scolarité: 15 étudiants en retard de paiement',
       time: '4h',
       status: 'warning'
     }, {
       type: 'course',
-      message: 'Nouveau cours "IA et Machine Learning" ajouté',
+      message: 'Nouveau programme "Intelligence Artificielle" lancé',
       time: '1j',
       status: 'info'
     }, {
       type: 'staff',
-      message: 'Évaluation du personnel terminée',
+      message: 'Nouveau Prof. Ahmed Benali rejoint le département',
       time: '2j',
       status: 'success'
     }]

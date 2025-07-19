@@ -23,32 +23,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const mockUsers: (User & { password: string })[] = [
   {
     id: '1',
-    name: 'Administrateur Principal',
-    email: 'admin@school.com',
+    name: 'Administrateur EMSI',
+    email: 'admin@emsi.ma',
     password: 'admin123',
     role: 'admin',
     avatar: '/api/placeholder/40/40'
   },
   {
     id: '2',
-    name: 'Prof. Marie Dubois',
-    email: 'marie.dubois@school.com',
+    name: 'Prof. Ahmed Benali',
+    email: 'prof.benali@emsi.ma',
     password: 'teacher123',
     role: 'teacher',
     avatar: '/api/placeholder/40/40'
   },
   {
     id: '3',
-    name: 'Jean Étudiant',
-    email: 'jean.etudiant@school.com',
+    name: 'Oumaima Lemata',
+    email: 'oumaima.lemata@emsi.ma',
     password: 'student123',
     role: 'student',
-    avatar: '/api/placeholder/40/40'
+    avatar: '/lovable-uploads/c19f19c6-7898-4ac0-a09e-4d3eee55d9ad.png'
   },
   {
     id: '4',
-    name: 'Claire Comptable',
-    email: 'claire.comptable@school.com',
+    name: 'Comptable EMSI',
+    email: 'comptable@emsi.ma',
     password: 'accountant123',
     role: 'accountant',
     avatar: '/api/placeholder/40/40'

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import studentYoussef from '@/assets/student-youssef.jpg';
+import studentSara from '@/assets/student-sara.jpg';
 import {
   Table,
   TableBody,
@@ -36,59 +38,46 @@ import {
   FileText,
 } from 'lucide-react';
 
-// Mock data for students
+// EMSI Students data
 const mockStudents = [
   {
     id: '1',
-    name: 'Jean Martin',
-    email: 'jean.martin@student.com',
+    name: 'Oumaima Lemata',
+    email: 'oumaima.lemata@emsi.ma',
     phone: '06.12.34.56.78',
-    program: 'Informatique',
-    year: '2ème année',
+    program: 'Génie Informatique',
+    year: '3ème année',
     status: 'actif',
-    enrollmentDate: '2023-09-15',
-    avatar: '/api/placeholder/40/40',
-    grades: 15.2,
-    attendance: 94,
+    enrollmentDate: '2022-09-15',
+    avatar: '/lovable-uploads/c19f19c6-7898-4ac0-a09e-4d3eee55d9ad.png',
+    grades: 16.8,
+    attendance: 95,
   },
   {
     id: '2',
-    name: 'Marie Dubois',
-    email: 'marie.dubois@student.com',
+    name: 'Youssef El Amrani',
+    email: 'youssef.elamrani@emsi.ma',
     phone: '06.98.76.54.32',
-    program: 'Management',
-    year: '1ère année',
+    program: 'Génie Électrique',
+    year: '2ème année',
     status: 'actif',
-    enrollmentDate: '2024-09-01',
-    avatar: '/api/placeholder/40/40',
-    grades: 16.8,
-    attendance: 98,
+    enrollmentDate: '2023-09-01',
+    avatar: studentYoussef,
+    grades: 15.4,
+    attendance: 92,
   },
   {
     id: '3',
-    name: 'Pierre Durand',
-    email: 'pierre.durand@student.com',
+    name: 'Sara Benkirane',
+    email: 'sara.benkirane@emsi.ma',
     phone: '06.11.22.33.44',
-    program: 'Ingénierie',
-    year: '3ème année',
-    status: 'stage',
-    enrollmentDate: '2022-09-12',
-    avatar: '/api/placeholder/40/40',
-    grades: 14.5,
-    attendance: 87,
-  },
-  {
-    id: '4',
-    name: 'Sophie Bernard',
-    email: 'sophie.bernard@student.com',
-    phone: '06.55.66.77.88',
-    program: 'Commerce',
-    year: '2ème année',
+    program: 'Génie Civil',
+    year: '1ère année',
     status: 'actif',
-    enrollmentDate: '2023-09-20',
-    avatar: '/api/placeholder/40/40',
-    grades: 17.1,
-    attendance: 96,
+    enrollmentDate: '2024-09-12',
+    avatar: studentSara,
+    grades: 17.2,
+    attendance: 98,
   },
 ];
 
