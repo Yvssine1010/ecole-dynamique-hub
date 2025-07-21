@@ -8,31 +8,7 @@ import { Users, GraduationCap, BookOpen, Calendar, TrendingUp, DollarSign, Award
 // Mock data for different user roles
 const mockData = {
   admin: {
-    stats: [{
-      title: 'Total Étudiants EMSI',
-      value: '3,247',
-      change: '+18%',
-      icon: GraduationCap,
-      color: 'text-primary'
-    }, {
-      title: 'Personnel Enseignant',
-      value: '125',
-      change: '+5%',
-      icon: Users,
-      color: 'text-accent'
-    }, {
-      title: 'Programmes Actifs',
-      value: '8',
-      change: '+2%',
-      icon: BookOpen,
-      color: 'text-success'
-    }, {
-      title: 'Revenus (MAD)',
-      value: '2,840,500',
-      change: '+22%',
-      icon: DollarSign,
-      color: 'text-warning'
-    }],
+    stats: [],
     recentActivities: [{
       type: 'student',
       message: 'Oumaima Lemata et 24 autres étudiants inscrits en Génie Informatique',
@@ -56,31 +32,7 @@ const mockData = {
     }]
   },
   teacher: {
-    stats: [{
-      title: 'Mes Étudiants',
-      value: '127',
-      change: '+5%',
-      icon: GraduationCap,
-      color: 'text-primary'
-    }, {
-      title: 'Cours Cette Semaine',
-      value: '18',
-      change: '0%',
-      icon: BookOpen,
-      color: 'text-accent'
-    }, {
-      title: 'Devoirs à Corriger',
-      value: '34',
-      change: '-12%',
-      icon: Award,
-      color: 'text-warning'
-    }, {
-      title: 'Taux de Présence',
-      value: '92%',
-      change: '+3%',
-      icon: UserCheck,
-      color: 'text-success'
-    }],
+    stats: [],
     recentActivities: [{
       type: 'assignment',
       message: 'Nouveaux devoirs soumis en Mathématiques',
@@ -150,56 +102,9 @@ const mockData = {
       time: '2j',
       status: 'info'
     }]
-  },
-  accountant: {
-    stats: [{
-      title: 'Paiements Reçus',
-      value: '€42,300',
-      change: '+18%',
-      icon: DollarSign,
-      color: 'text-success'
-    }, {
-      title: 'En Attente',
-      value: '€8,150',
-      change: '-5%',
-      icon: Clock,
-      color: 'text-warning'
-    }, {
-      title: 'Étudiants Payés',
-      value: '89%',
-      change: '+3%',
-      icon: CheckCircle2,
-      color: 'text-primary'
-    }, {
-      title: 'Factures Émises',
-      value: '156',
-      change: '+12%',
-      icon: Users,
-      color: 'text-accent'
-    }],
-    recentActivities: [{
-      type: 'payment',
-      message: 'Paiement reçu: Jean Martin - €1,200',
-      time: '1h',
-      status: 'success'
-    }, {
-      type: 'reminder',
-      message: '15 rappels de paiement envoyés',
-      time: '3h',
-      status: 'info'
-    }, {
-      type: 'invoice',
-      message: 'Factures générées pour le semestre',
-      time: '1j',
-      status: 'success'
-    }, {
-      type: 'overdue',
-      message: '5 paiements en retard signalés',
-      time: '2j',
-      status: 'warning'
-    }]
   }
 };
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'success':
@@ -212,27 +117,91 @@ const getStatusColor = (status: string) => {
       return 'bg-muted text-muted-foreground';
   }
 };
+
 export default function Dashboard() {
-  const {
-    user
-  } = useAuth();
+  const { user, students, teachers } = useAuth();
   if (!user) return null;
-  const data = mockData[user.role];
+  
+  // Update stats dynamically
+  const updatedMockData = {
+    ...mockData,
+    admin: {
+      ...mockData.admin,
+      stats: [
+        {
+          title: 'Total Étudiants EMSI',
+          value: students.length.toString(),
+          change: '+18%',
+          icon: GraduationCap,
+          color: 'text-primary'
+        },
+        {
+          title: 'Personnel Enseignant',
+          value: teachers.length.toString(),
+          change: '+5%',
+          icon: Users,
+          color: 'text-accent'
+        },
+        {
+          title: 'Revenus (MAD)',
+          value: '2,840,500',
+          change: '+22%',
+          icon: DollarSign,
+          color: 'text-warning'
+        }
+      ]
+    },
+    teacher: {
+      ...mockData.teacher,
+      stats: [
+        {
+          title: 'Mes Étudiants',
+          value: students.length.toString(),
+          change: '+5%',
+          icon: GraduationCap,
+          color: 'text-primary'
+        },
+        {
+          title: 'Cours Cette Semaine',
+          value: '18',
+          change: '0%',
+          icon: BookOpen,
+          color: 'text-accent'
+        },
+        {
+          title: 'Devoirs à Corriger',
+          value: '34',
+          change: '-12%',
+          icon: Award,
+          color: 'text-warning'
+        }
+      ]
+    }
+  };
+  
+  const data = updatedMockData[user.role];
   const userName = user.name.split(' ')[0];
-  return <div className="p-6 space-y-6 max-w-7xl mx-auto">
+  
+  return (
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Welcome Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground">
           Bonjour, {userName} 👋
         </h1>
         <p className="text-muted-foreground">
-          {user.role === 'admin' ? 'Voici un aperçu de votre établissement' : user.role === 'teacher' ? 'Voici un résumé de vos activités d\'enseignement' : user.role === 'student' ? 'Voici votre progression académique' : 'Voici un aperçu financier de l\'établissement'}
+          {user.role === 'admin' 
+            ? 'Voici un aperçu de votre établissement' 
+            : user.role === 'teacher' 
+              ? 'Voici un résumé de vos activités d\'enseignement' 
+              : 'Voici votre progression académique'}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {data.stats.map((stat, index) => <Card key={index} className="shadow-card bg-gradient-card border-0 animate-fade-in hover:shadow-stats transition-shadow duration-300">
+        {data.stats.map((stat, index) => (
+          <Card key={index} className="shadow-card bg-gradient-card border-0 animate-fade-in hover:shadow-stats transition-shadow duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -251,7 +220,8 @@ export default function Dashboard() {
                 </div>
               </div>
             </CardContent>
-          </Card>)}
+          </Card>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -268,15 +238,23 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {data.recentActivities.map((activity, index) => <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors">
+              {data.recentActivities.map((activity, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors">
                   <Badge variant="outline" className={getStatusColor(activity.status)}>
-                    {activity.status === 'success' ? <CheckCircle2 className="w-3 h-3" /> : activity.status === 'warning' ? <AlertCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                    {activity.status === 'success' ? (
+                      <CheckCircle2 className="w-3 h-3" />
+                    ) : activity.status === 'warning' ? (
+                      <AlertCircle className="w-3 h-3" />
+                    ) : (
+                      <Clock className="w-3 h-3" />
+                    )}
                   </Badge>
                   <div className="flex-1 space-y-1">
                     <p className="text-sm text-foreground">{activity.message}</p>
                     <p className="text-xs text-muted-foreground">il y a {activity.time}</p>
                   </div>
-                </div>)}
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -284,5 +262,6 @@ export default function Dashboard() {
         {/* Quick Actions or Progress */}
         
       </div>
-    </div>;
+    </div>
+  );
 }

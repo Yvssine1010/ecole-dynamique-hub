@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import studentYoussef from '@/assets/student-youssef.jpg';
-import studentSara from '@/assets/student-sara.jpg';
+import { useToast } from '@/hooks/use-toast';
 import {
   Table,
   TableBody,
@@ -38,48 +38,6 @@ import {
   FileText,
 } from 'lucide-react';
 
-// EMSI Students data
-const mockStudents = [
-  {
-    id: '1',
-    name: 'Oumaima Lemata',
-    email: 'oumaima.lemata@emsi.ma',
-    phone: '06.12.34.56.78',
-    program: 'Génie Informatique',
-    year: '3ème année',
-    status: 'actif',
-    enrollmentDate: '2022-09-15',
-    avatar: '/lovable-uploads/c19f19c6-7898-4ac0-a09e-4d3eee55d9ad.png',
-    grades: 16.8,
-    attendance: 95,
-  },
-  {
-    id: '2',
-    name: 'Youssef El Amrani',
-    email: 'youssef.elamrani@emsi.ma',
-    phone: '06.98.76.54.32',
-    program: 'Génie Électrique',
-    year: '2ème année',
-    status: 'actif',
-    enrollmentDate: '2023-09-01',
-    avatar: studentYoussef,
-    grades: 15.4,
-    attendance: 92,
-  },
-  {
-    id: '3',
-    name: 'Sara Benkirane',
-    email: 'sara.benkirane@emsi.ma',
-    phone: '06.11.22.33.44',
-    program: 'Génie Civil',
-    year: '1ère année',
-    status: 'actif',
-    enrollmentDate: '2024-09-12',
-    avatar: studentSara,
-    grades: 17.2,
-    attendance: 98,
-  },
-];
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -98,15 +56,79 @@ export default function Students() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProgram, setSelectedProgram] = useState('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    program: '',
+    year: '',
+    status: 'actif'
+  });
+  
+  const { students, addStudent, deleteStudent, user } = useAuth();
+  const { toast } = useToast();
 
-  const filteredStudents = mockStudents.filter(student => {
+  const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesProgram = selectedProgram === 'all' || student.program === selectedProgram;
     return matchesSearch && matchesProgram;
   });
 
-  const programs = [...new Set(mockStudents.map(s => s.program))];
+  const programs = [...new Set(students.map(s => s.program))];
+
+  const handleAddStudent = () => {
+    if (!newStudent.name || !newStudent.email || !newStudent.program || !newStudent.year) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const studentData = {
+      ...newStudent,
+      phone: newStudent.phone || '06.XX.XX.XX.XX',
+      enrollmentDate: new Date().toISOString().split('T')[0],
+      avatar: '/api/placeholder/40/40',
+      grades: 0,
+      attendance: 0
+    };
+
+    addStudent(studentData);
+    setNewStudent({
+      name: '',
+      email: '',
+      phone: '',
+      program: '',
+      year: '',
+      status: 'actif'
+    });
+    setIsAddDialogOpen(false);
+    
+    toast({
+      title: "Succès",
+      description: "Étudiant ajouté avec succès",
+    });
+  };
+
+  const handleDeleteStudent = (id: string, name: string) => {
+    if (user?.role !== 'admin') {
+      toast({
+        title: "Accès refusé",
+        description: "Seuls les administrateurs peuvent supprimer des étudiants",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    deleteStudent(id);
+    toast({
+      title: "Succès",
+      description: `Étudiant ${name} supprimé avec succès`,
+    });
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -137,28 +159,64 @@ export default function Students() {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">Nom</Label>
-                <Input id="name" className="col-span-3" />
+                <Input 
+                  id="name" 
+                  className="col-span-3" 
+                  value={newStudent.name}
+                  onChange={(e) => setNewStudent({...newStudent, name: e.target.value})}
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="email" className="text-right">Email</Label>
-                <Input id="email" type="email" className="col-span-3" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  className="col-span-3" 
+                  value={newStudent.email}
+                  onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="phone" className="text-right">Téléphone</Label>
+                <Input 
+                  id="phone" 
+                  className="col-span-3" 
+                  value={newStudent.phone}
+                  onChange={(e) => setNewStudent({...newStudent, phone: e.target.value})}
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="program" className="text-right">Filière</Label>
-                <Select>
+                <Select value={newStudent.program} onValueChange={(value) => setNewStudent({...newStudent, program: value})}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Sélectionner une filière" />
                   </SelectTrigger>
                   <SelectContent>
-                    {programs.map(program => (
-                      <SelectItem key={program} value={program}>{program}</SelectItem>
-                    ))}
+                    <SelectItem value="Génie Informatique">Génie Informatique</SelectItem>
+                    <SelectItem value="Génie Électrique">Génie Électrique</SelectItem>
+                    <SelectItem value="Génie Civil">Génie Civil</SelectItem>
+                    <SelectItem value="Génie Mécanique">Génie Mécanique</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="year" className="text-right">Année</Label>
+                <Select value={newStudent.year} onValueChange={(value) => setNewStudent({...newStudent, year: value})}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Sélectionner une année" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1ère année">1ère année</SelectItem>
+                    <SelectItem value="2ème année">2ème année</SelectItem>
+                    <SelectItem value="3ème année">3ème année</SelectItem>
+                    <SelectItem value="4ème année">4ème année</SelectItem>
+                    <SelectItem value="5ème année">5ème année</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Créer l'étudiant</Button>
+              <Button type="button" onClick={handleAddStudent}>Créer l'étudiant</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -171,7 +229,7 @@ export default function Students() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Étudiants</p>
-                <p className="text-2xl font-bold text-foreground">{mockStudents.length}</p>
+                <p className="text-2xl font-bold text-foreground">{students.length}</p>
               </div>
               <GraduationCap className="w-8 h-8 text-primary" />
             </div>
@@ -184,7 +242,7 @@ export default function Students() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Étudiants Actifs</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {mockStudents.filter(s => s.status === 'actif').length}
+                  {students.filter(s => s.status === 'actif').length}
                 </p>
               </div>
               <Users className="w-8 h-8 text-success" />
@@ -198,7 +256,7 @@ export default function Students() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Moyenne Générale</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {(mockStudents.reduce((acc, s) => acc + s.grades, 0) / mockStudents.length).toFixed(1)}
+                  {students.length > 0 ? (students.reduce((acc, s) => acc + s.grades, 0) / students.length).toFixed(1) : '0'}
                 </p>
               </div>
               <FileText className="w-8 h-8 text-accent" />
@@ -212,7 +270,7 @@ export default function Students() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Taux Présence</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {Math.round(mockStudents.reduce((acc, s) => acc + s.attendance, 0) / mockStudents.length)}%
+                  {students.length > 0 ? Math.round(students.reduce((acc, s) => acc + s.attendance, 0) / students.length) : 0}%
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-warning" />
@@ -300,7 +358,13 @@ export default function Students() {
                         <Button variant="ghost" size="sm">
                           <Mail className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteStudent(student.id, student.name)}
+                          disabled={user?.role !== 'admin'}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

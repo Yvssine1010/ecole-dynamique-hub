@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 import {
   Table,
   TableBody,
@@ -37,65 +39,6 @@ import {
   Award,
 } from 'lucide-react';
 
-// Mock data for staff
-const mockStaff = [
-  {
-    id: '1',
-    name: 'Dr. Marie Dubois',
-    email: 'marie.dubois@school.com',
-    phone: '01.23.45.67.89',
-    department: 'Informatique',
-    position: 'Professeur',
-    status: 'actif',
-    hireDate: '2020-09-01',
-    avatar: '/api/placeholder/40/40',
-    courses: ['Algorithmes', 'Bases de Données'],
-    students: 67,
-    experience: '8 ans',
-  },
-  {
-    id: '2',
-    name: 'Prof. Jean Martin',
-    email: 'jean.martin@school.com',
-    phone: '01.98.76.54.32',
-    department: 'Management',
-    position: 'Maître de conférences',
-    status: 'actif',
-    hireDate: '2019-02-15',
-    avatar: '/api/placeholder/40/40',
-    courses: ['Gestion de Projet', 'Leadership'],
-    students: 89,
-    experience: '12 ans',
-  },
-  {
-    id: '3',
-    name: 'Dr. Sophie Bernard',
-    email: 'sophie.bernard@school.com',
-    phone: '01.11.22.33.44',
-    department: 'Ingénierie',
-    position: 'Professeur',
-    status: 'congé',
-    hireDate: '2018-08-20',
-    avatar: '/api/placeholder/40/40',
-    courses: ['Mécanique', 'Thermodynamique'],
-    students: 45,
-    experience: '15 ans',
-  },
-  {
-    id: '4',
-    name: 'Claire Administrateur',
-    email: 'claire.admin@school.com',
-    phone: '01.55.66.77.88',
-    department: 'Administration',
-    position: 'Responsable RH',
-    status: 'actif',
-    hireDate: '2021-01-10',
-    avatar: '/api/placeholder/40/40',
-    courses: [],
-    students: 0,
-    experience: '5 ans',
-  },
-];
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -127,15 +70,80 @@ export default function Staff() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newTeacher, setNewTeacher] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    department: '',
+    position: '',
+    status: 'actif'
+  });
+  
+  const { teachers, addTeacher, deleteTeacher, user } = useAuth();
+  const { toast } = useToast();
 
-  const filteredStaff = mockStaff.filter(staff => {
+  const filteredStaff = teachers.filter(staff => {
     const matchesSearch = staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          staff.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment = selectedDepartment === 'all' || staff.department === selectedDepartment;
     return matchesSearch && matchesDepartment;
   });
 
-  const departments = [...new Set(mockStaff.map(s => s.department))];
+  const departments = [...new Set(teachers.map(s => s.department))];
+
+  const handleAddTeacher = () => {
+    if (!newTeacher.name || !newTeacher.email || !newTeacher.department || !newTeacher.position) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const teacherData = {
+      ...newTeacher,
+      phone: newTeacher.phone || '05.XX.XX.XX.XX',
+      hireDate: new Date().toISOString().split('T')[0],
+      avatar: '/api/placeholder/40/40',
+      courses: [],
+      students: 0,
+      experience: '0 ans'
+    };
+
+    addTeacher(teacherData);
+    setNewTeacher({
+      name: '',
+      email: '',
+      phone: '',
+      department: '',
+      position: '',
+      status: 'actif'
+    });
+    setIsAddDialogOpen(false);
+    
+    toast({
+      title: "Succès",
+      description: "Enseignant ajouté avec succès",
+    });
+  };
+
+  const handleDeleteTeacher = (id: string, name: string) => {
+    if (user?.role !== 'admin') {
+      toast({
+        title: "Accès refusé",
+        description: "Seuls les administrateurs peuvent supprimer des enseignants",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    deleteTeacher(id);
+    toast({
+      title: "Succès",
+      description: `Enseignant ${name} supprimé avec succès`,
+    });
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -166,28 +174,63 @@ export default function Staff() {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">Nom</Label>
-                <Input id="name" className="col-span-3" />
+                <Input 
+                  id="name" 
+                  className="col-span-3" 
+                  value={newTeacher.name}
+                  onChange={(e) => setNewTeacher({...newTeacher, name: e.target.value})}
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="email" className="text-right">Email</Label>
-                <Input id="email" type="email" className="col-span-3" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  className="col-span-3" 
+                  value={newTeacher.email}
+                  onChange={(e) => setNewTeacher({...newTeacher, email: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="phone" className="text-right">Téléphone</Label>
+                <Input 
+                  id="phone" 
+                  className="col-span-3" 
+                  value={newTeacher.phone}
+                  onChange={(e) => setNewTeacher({...newTeacher, phone: e.target.value})}
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="department" className="text-right">Département</Label>
-                <Select>
+                <Select value={newTeacher.department} onValueChange={(value) => setNewTeacher({...newTeacher, department: value})}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Sélectionner un département" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
+                    <SelectItem value="Génie Informatique">Génie Informatique</SelectItem>
+                    <SelectItem value="Génie Électrique">Génie Électrique</SelectItem>
+                    <SelectItem value="Génie Civil">Génie Civil</SelectItem>
+                    <SelectItem value="Génie Mécanique">Génie Mécanique</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="position" className="text-right">Poste</Label>
+                <Select value={newTeacher.position} onValueChange={(value) => setNewTeacher({...newTeacher, position: value})}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Sélectionner un poste" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Professeur">Professeur</SelectItem>
+                    <SelectItem value="Maître de conférences">Maître de conférences</SelectItem>
+                    <SelectItem value="Assistant">Assistant</SelectItem>
+                    <SelectItem value="Chargé de cours">Chargé de cours</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Créer le profil</Button>
+              <Button type="button" onClick={handleAddTeacher}>Créer le profil</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -200,7 +243,7 @@ export default function Staff() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Personnel</p>
-                <p className="text-2xl font-bold text-foreground">{mockStaff.length}</p>
+                <p className="text-2xl font-bold text-foreground">{teachers.length}</p>
               </div>
               <Users className="w-8 h-8 text-primary" />
             </div>
@@ -213,7 +256,7 @@ export default function Staff() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Enseignants</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {mockStaff.filter(s => s.position.includes('Professeur') || s.position.includes('Maître')).length}
+                  {teachers.filter(s => s.position.includes('Professeur') || s.position.includes('Maître')).length}
                 </p>
               </div>
               <BookOpen className="w-8 h-8 text-success" />
@@ -227,7 +270,7 @@ export default function Staff() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Administratifs</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {mockStaff.filter(s => s.department === 'Administration').length}
+                  {teachers.filter(s => s.department === 'Administration').length}
                 </p>
               </div>
               <UserCheck className="w-8 h-8 text-accent" />
@@ -241,7 +284,7 @@ export default function Staff() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Actifs</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {mockStaff.filter(s => s.status === 'actif').length}
+                  {teachers.filter(s => s.status === 'actif').length}
                 </p>
               </div>
               <Award className="w-8 h-8 text-warning" />
@@ -330,7 +373,13 @@ export default function Staff() {
                         <Button variant="ghost" size="sm">
                           <Mail className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteTeacher(staff.id, staff.name)}
+                          disabled={user?.role !== 'admin'}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

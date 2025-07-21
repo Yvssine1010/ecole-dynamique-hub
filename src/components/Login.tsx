@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +13,8 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, students } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +31,30 @@ export default function Login() {
     }
   };
 
-  const demoAccounts = [
-    { email: 'admin@emsi.ma', password: 'admin123', role: 'Administrateur' },
-    { email: 'prof.benali@emsi.ma', password: 'teacher123', role: 'Enseignant' },
-    { email: 'oumaima.lemata@emsi.ma', password: 'student123', role: 'Étudiant' },
-    { email: 'comptable@emsi.ma', password: 'accountant123', role: 'Comptable' }
-  ];
+  const adminAccount = { 
+    email: 'admin@emsi.ma', 
+    password: 'admin123', 
+    role: 'Administrateur',
+    name: 'Administrateur EMSI',
+    avatar: undefined
+  };
+  const teacherAccount = { 
+    email: 'prof.benali@emsi.ma', 
+    password: 'teacher123', 
+    role: 'Enseignant',
+    name: 'Prof. Ahmed Benali',
+    avatar: undefined
+  };
+  
+  const studentAccounts = students.map(student => ({
+    email: student.email,
+    password: 'student123',
+    role: 'Étudiant',
+    name: student.name,
+    avatar: student.avatar
+  }));
+
+  const demoAccounts = [adminAccount, teacherAccount, ...studentAccounts];
 
   return (
     <div 
@@ -53,11 +73,19 @@ export default function Login() {
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="bg-gradient-primary p-4 rounded-full shadow-stats">
+            <div 
+              className="bg-gradient-primary p-4 rounded-full shadow-stats cursor-pointer hover:shadow-lg transition-all duration-300"
+              onClick={() => navigate('/dashboard')}
+            >
               <GraduationCap className="w-10 h-10 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-foreground drop-shadow-lg">EMSI</h1>
+          <h1 
+            className="text-4xl font-bold text-foreground drop-shadow-lg cursor-pointer hover:text-primary transition-colors duration-300"
+            onClick={() => navigate('/dashboard')}
+          >
+            EMSI
+          </h1>
           <h2 className="text-lg font-semibold text-foreground/90">École Marocaine des Sciences de l'Ingénierie</h2>
           <p className="text-muted-foreground bg-background/60 backdrop-blur-sm rounded-lg px-3 py-1">Système de gestion scolaire</p>
         </div>
@@ -135,9 +163,14 @@ export default function Login() {
                   setPassword(account.password);
                 }}
               >
-                <div>
-                  <p className="text-sm font-medium">{account.role}</p>
-                  <p className="text-xs text-muted-foreground">{account.email}</p>
+                <div className="flex items-center gap-2">
+                  {account.avatar && (
+                    <img src={account.avatar} alt={account.name || account.role} className="w-6 h-6 rounded-full object-cover" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">{account.name || account.role}</p>
+                    <p className="text-xs text-muted-foreground">{account.email}</p>
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground">{account.password}</p>
               </div>
